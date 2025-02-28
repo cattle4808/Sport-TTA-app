@@ -28,10 +28,12 @@ share/python-wheels/
 MANIFEST
 .venv
 .env
-.idea/
+.idea/*
 .vscode/
 .DS_Store
 Thumbs.db
+.idea
+.idea/
 
 # Installer logs
 pip-log.txt
