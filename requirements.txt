@@ -3,3 +3,6 @@ djangorestframework
 markdown
 django-filter
 django-jazzmin
+python-dotenv
+gunicorn
+Pillow
