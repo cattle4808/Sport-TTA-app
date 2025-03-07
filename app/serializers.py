@@ -7,10 +7,17 @@ from rest_framework import serializers
 from . import models
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.UserModel
+        fields = '__all__'
+
+
 class SessionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.SessionAreaModel
         fields = '__all__'
+
 
 class BookingSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(
@@ -46,8 +53,9 @@ class BookingSerializer(serializers.ModelSerializer):
         overlapping_bookings = models.BookingModel.objects.filter(
             session_area=session_area
         ).filter(
-            Q(start_time__lt=end_time, end_time__gt=start_time)
+            Q(start_time__lt=end_time) & Q(end_time__gt=start_time)
         )
+
 
         if overlapping_bookings.exists():
             raise serializers.ValidationError("Это время уже занято. Выберите другое.")

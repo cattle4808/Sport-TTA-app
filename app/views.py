@@ -25,6 +25,10 @@ class BookingView(ListCreateAPIView):
         return models.BookingModel.objects.filter(session_area__day__range=[today, three_days_later], session_area__status=True)
 
 
+class UserViews(ListCreateAPIView):
+    queryset = models.UserModel.objects.all()
+    serializer_class = serializers.UserSerializer
+
 # class BookingView(ListCreateAPIView):
 #     serializer_class = serializers.BookingSerializer
 #
