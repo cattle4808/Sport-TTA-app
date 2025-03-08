@@ -1,9 +1,5 @@
-from datetime import timedelta
-
-from django.core.serializers import serialize
 from django.db.models import Q
 from rest_framework import serializers
-
 from . import models
 
 
@@ -29,38 +25,35 @@ class BookingSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.BookingModel
         fields = ['id', 'user', 'session_area', 'start_time', 'end_time', 'session']
+        extra_kwargs = {'user': {'read_only': True}}  # Нельзя менять юзера после создания брони
 
     def get_session(self, obj):
-        return obj.session_area.id
+        return SessionsSerializer(obj.session_area).data
 
     def validate(self, data):
         session_area = data['session_area']
         start_time = data['start_time']
         end_time = data['end_time']
 
-        if start_time < session_area.start_time or end_time > session_area.end_time:
+        if start_time >= end_time:
+            raise serializers.ValidationError("Время окончания бронирования должно быть позже времени начала.")
+
+        if not (session_area.start_time <= start_time and end_time <= session_area.end_time):
             raise serializers.ValidationError("Выберите время в пределах доступной сессии.")
 
-        duration = timedelta(
-            hours=end_time.hour, minutes=end_time.minute
-        ) - timedelta(
-            hours=start_time.hour, minutes=start_time.minute
-        )
-
-        if duration > timedelta(hours=2):
+        duration_minutes = (end_time.hour * 60 + end_time.minute) - (start_time.hour * 60 + start_time.minute)
+        if duration_minutes > 120:
             raise serializers.ValidationError("Максимальное время бронирования — 2 часа.")
 
-        overlapping_bookings = models.BookingModel.objects.filter(
-            session_area=session_area
-        ).filter(
-            Q(start_time__lt=end_time) & Q(end_time__gt=start_time)
-        )
-
-
-        if overlapping_bookings.exists():
+        if models.BookingModel.objects.filter(
+            session_area=session_area,
+            start_time__lt=end_time,
+            end_time__gt=start_time
+        ).exists():
             raise serializers.ValidationError("Это время уже занято. Выберите другое.")
 
         return data
+
 
 class SportAreaSerializer(serializers.ModelSerializer):
     class Meta:

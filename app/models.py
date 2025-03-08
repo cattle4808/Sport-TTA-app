@@ -32,7 +32,6 @@ class SessionAreaModel(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
     status = models.BooleanField(default=False)
-    data = models.DateField(default=True)
 
     def __str__(self):
         return f'{self.pk} - {self.sport_area.name} - {self.day} - {self.start_time} - {self.end_time}'
@@ -42,7 +41,6 @@ class BookingModel(models.Model):
     session_area = models.ForeignKey(SessionAreaModel, on_delete=models.CASCADE, related_name='session_area')
     start_time = models.TimeField()
     end_time = models.TimeField()
-    date = models.DateField(auto_now=True)
 
     def __str__(self):
         return (f"Id: {self.pk}  "
