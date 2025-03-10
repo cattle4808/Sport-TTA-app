@@ -5,12 +5,12 @@ class Status(models.TextChoices):
     user = 'user', 'User'
 
 class UserModel(models.Model):
-    user_tg_id = models.IntegerField()
+    user_id = models.BigIntegerField(unique=True, null=True, blank=True)
     username = models.CharField(max_length=255)
     status = models.CharField(max_length=255, choices=Status.choices, default=Status.user)
 
     def __str__(self):
-        return f'{self.user_tg_id} - {self.username} - {self.user_tg_id} - {self.status}'
+        return f'{self.user_id} - {self.username} - {self.status}'
 
 class SportAreaModel(models.Model):
     name = models.CharField(max_length=255, verbose_name='name')
@@ -41,6 +41,7 @@ class BookingModel(models.Model):
     session_area = models.ForeignKey(SessionAreaModel, on_delete=models.CASCADE, related_name='session_area')
     start_time = models.TimeField()
     end_time = models.TimeField()
+    status = models.BooleanField(default=False)
 
     def __str__(self):
         return (f"Id: {self.pk}  "
