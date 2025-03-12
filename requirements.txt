@@ -6,3 +6,4 @@ django-jazzmin
 python-dotenv
 gunicorn
 Pillow
+drf_yasg

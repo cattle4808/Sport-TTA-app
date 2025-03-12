@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView
 from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import status
@@ -23,6 +23,8 @@ class SessionView(ListCreateAPIView):
         return self.queryset.filter(day__gte=today, day__lte=three_days_later, status=True).order_by('day')
 
 
+
+
 class BookingView(ListCreateAPIView):
     serializer_class = serializers.BookingSerializer
     def get_queryset(self):
@@ -30,10 +32,17 @@ class BookingView(ListCreateAPIView):
         three_days_later = today + timezone.timedelta(days=3)
         return models.BookingModel.objects.filter(session_area__day__range=[today, three_days_later], session_area__status=True)
 
+class TelegramAuthView(ListCreateAPIView):
+    serializer_class = serializers.UserAuthSerializer
+    queryset = models.UserModel.objects.all()
 
-class TelegramAuthView(APIView):
-    def post(self, request):
-        user_id = request.data.get("id")
-        username = request.data.get("username", f"user_{user_id}")
-        user, _ = models.UserModel.objects.get_or_create(user_id=user_id, defaults={"username": username})
-        return Response(serializers.UserSerializer(user).data, status=status.HTTP_200_OK)
+class TelegramView(RetrieveAPIView):
+    serializer_class = serializers.UserSerializer
+    queryset = models.UserModel.objects.all()
+    lookup_field = 'telegram_id'
+
+class TelegramUpdateView(RetrieveUpdateAPIView):
+    serializer_class = serializers.UserSerializer
+    queryset = models.UserModel.objects.all()
+    lookup_field = 'telegram_id'
+    http_method_names = ['put', 'patch']

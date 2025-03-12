@@ -3,10 +3,19 @@ from rest_framework import serializers
 from . import models
 
 
+
+class UserAuthSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.UserModel
+        fields = ['telegram_id', 'username', 'name', 'phone', 'status']
+        read_only_fields = ['status']
+
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UserModel
-        fields = '__all__'
+        fields = ['id', 'telegram_id', 'username', 'name', 'phone','status']
+        read_only_fields = ['telegram_id', 'status']
 
 
 class SessionsSerializer(serializers.ModelSerializer):
@@ -18,14 +27,13 @@ class SessionsSerializer(serializers.ModelSerializer):
 class BookingSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(
         queryset=models.UserModel.objects.all(),
-        slug_field='user_id'
+        slug_field='telegram_id'
     )
     session = serializers.SerializerMethodField()
 
     class Meta:
         model = models.BookingModel
-        fields = ['id', 'user', 'session_area', 'start_time', 'end_time', 'session']
-        extra_kwargs = {'user': {'read_only': True}}
+        fields = ['id', 'user', 'session_area', 'group', 'students_count', 'start_time', 'end_time', 'session']
 
     def get_session(self, obj):
         return SessionsSerializer(obj.session_area).data

@@ -5,12 +5,14 @@ class Status(models.TextChoices):
     user = 'user', 'User'
 
 class UserModel(models.Model):
-    user_id = models.BigIntegerField(unique=True, null=True, blank=True)
+    telegram_id = models.BigIntegerField(unique=True)
     username = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, blank=True, null=True)
+    phone = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=255, choices=Status.choices, default=Status.user)
 
     def __str__(self):
-        return f'{self.user_id} - {self.username} - {self.status}'
+        return f'{self.telegram_id} - {self.username} - {self.status}'
 
 class SportAreaModel(models.Model):
     name = models.CharField(max_length=255, verbose_name='name')
@@ -41,11 +43,11 @@ class BookingModel(models.Model):
     session_area = models.ForeignKey(SessionAreaModel, on_delete=models.CASCADE, related_name='session_area')
     start_time = models.TimeField()
     end_time = models.TimeField()
+    group = models.CharField(max_length=255, blank=True, null=True)
+    students_count = models.IntegerField()
     status = models.BooleanField(default=False)
 
     def __str__(self):
-        return (f"Id: {self.pk}  "
-                f"User: {self.user}  "
-                f"Area: {self.session_area}  "
-                f"Start: {self.start_time}  "
-                f"End: {self.end_time}")
+        return f'{self.pk} - {self.user.telegram_id} - {self.session_area.sport_area.name} - {self.session_area.day} - {self.start_time} - {self.end_time}'
+
+
